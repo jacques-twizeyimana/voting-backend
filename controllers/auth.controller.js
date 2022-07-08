@@ -34,6 +34,7 @@ exports.register = async (req, res) => {
         phone: newUser.phone,
         email: newUser.email,
         nationalId: newUser.nationalId,
+        role: newUser.role,
       },
       "mivote_secret",
       { expiresIn: "1d" }
@@ -72,21 +73,23 @@ exports.login = async (req, res) => {
         message: "Invalid email or password",
       });
 
-    const token = jwt.sign(
-      {
-        userId: user._id,
-        phone: user.phone,
-      },
-      "mivote_secret",
-      { expiresIn: "1d" }
-    );
-    user.token = token;
+      const token = jwt.sign(
+        {
+          userId: user._id,
+          phone: user.phone,
+          email: user.email,
+          nationalId: user.nationalId,
+          role: user.role,
+        },
+        "mivote_secret",
+        { expiresIn: "1d" }
+      );
 
-    return res.status(200).send({
-      success: true,
-      message: "User logged in!",
-      data: user,
-    });
+      return res.status(200).send({
+        success: true,
+        message: "User logged in!",
+        data: { user, token },
+      });
   } catch (err) {
     return res.status(400).send({ success: false, message: err.message });
   }
